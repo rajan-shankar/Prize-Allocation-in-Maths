@@ -1,0 +1,283 @@
+---
+title: "Scholarships and Prizes in First-Year Math Units"
+author: "490411065 | 490389982 | 490449275 | 490407231"
+subtitle: "Project 3"
+date: "University of Sydney | DATA1901 | May 2019"
+output:
+  prettydoc::html_pretty:
+    theme: leonids
+    highlight: github
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+library(plotly)
+library(multicon)
+library(knitr)
+library(dplyr)
+library(shiny)
+```
+
+# 1 Executive Summary
+
+> The University of Sydney offers **$84 million** in scholarships every single year.
+
+This analysis considers the University of Sydney's *Scholarships Office* as a stakeholder, and it aims to provide advice to the Scholarships Office on how scholarships and prizes should be allocated, specifically regarding students taking first-year math units. 
+
+The main findings include:
+
+- Around $64$ academic merit prizes worth $\$1000$ each should be distributed across the first-year math units as shown below
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+kable(t(c(4,6,11,4,2,10,4,8,6,1,1,4,1,1,1)), caption = "Merit Prize Distribution", col.names = c("UNIT A", 
+                               "UNIT Q", 
+                               "UNIT S",
+                               "UNIT K",
+                               "UNIT C",
+                               "UNIT O",
+                               "UNIT G",
+                               "UNIT H",
+                               "UNIT V",
+                               "UNIT W",
+                               "UNIT M",
+                               "UNIT X",
+                               "UNIT T",
+                               "UNIT Y",
+                               "UNIT Z"))
+```
+
+- Further funding of female-targeted scholarships is required, as there are $16\%$ less females enrolled than males
+- Scholarships for international students who excel in English entry exams are needed to promote better English skills
+
+# 2 Initial Data Analysis
+
+The dataset consists of $10845$ students' grades and demographics who were enrolled in Junior Mathematics Units in 2018. The data is sourced from the University of Sydney's *Institutional Analytics and Planning* department, and thus has high validity as it comes from a reliable primary source. 
+
+The data is comprised of $23$ variables, with its structure shown below. RStudio has interpreted all of the variable classes correctly.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+data = read.csv("data.csv")
+glimpse(data)
+```
+
+To conduct any sort of analysis, certain ethical considerations need to be taken into account, such as ensuring the anonymity of students - students' names and SID numbers have been removed, and are instead represented by an anonymous Student Enrolment Key. Furthermore, made-up identifiers were used in place of the actual unit names that students took. 
+
+Importantly, the data will be considered to represent the actual population of student marks. Although the marks of those not applicable as 'students' (e.g. those who abent-failed, discontinued, or withdrew) were removed to preserve anonymity, there should only be very few that fell into these categories, so the data is in practical terms, a population. This has important implications for our statistical analysis, which has to then use population-related measures instead of sample-based ones.
+
+However, the dataset is limited because it does not capture data on ALL the people who enter the course - only those who finish it. In essence, it does not take into account the very real effect of outliers like withdrawals, absent fails etc. (which would have been considered a zero mark). This limits the findings of the report strictly to cases where every single subject in the dataset has completed the course.
+
+After exploring the data in RStudio, we have decided to centre our research around mark distributions in relation to key demographics, i.e. focus primarily on the `Mark`, `Gender`, `Dom.Int` and `Unit.Of.Study.Identifier` variables. The `Canvas.access.week.x` variables did not provide much valuable insight, as there was no useful relationship between marks and canvas access.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+means = (data$Canvas.access.Week.1 + data$Canvas.access.Week.2 + data$Canvas.access.Week.3 + data$Canvas.access.Week.4 + data$Canvas.access.Week.5 + data$Canvas.access.Week.6 + data$Canvas.access.Week.7 + data$Canvas.access.Week.8 + data$Canvas.access.Week.9 + data$Canvas.access.Week.10 + data$Canvas.access.Week.11 + data$Canvas.access.Week.12 + data$Canvas.access.Week.13 + data$Canvas.access.Mid.semester.break + data$Canvas.access.STUVAC) / 15
+
+div(
+plot_ly(x = means, y = data$Mark, type = "scatter", color = I("#7f7f7f")) %>% layout(width = 850, title = "Canvas Access vs Mark",  xaxis = list(title = "Proportion of Weeks that Canvas was Accessed"), yaxis = list(title = "Mark"))
+, align = "center")
+```
+
+# 3 Research Question
+
+The purpose of the following analysis is to generate some insights on where The University of Sydney's Scholarships Office should be allocating scholarships and prizes, based on the data collected from first-year math units in 2018.
+
+## 3.1 Prizes Based on Academic Performance
+
+The University of Sydney allocates $600$ academic merit prizes worth $\$1000$ each every year <font color="#884dff">[1]</font> to 
+
+> recognise meritorious undergraduate students... and promote student **academic excellence**
+
+By considering the total undergraduate enrolment of $34012$ students in 2017 <font color="#884dff">[2]</font>, we can deduce that the number of undergraduate students in 2018 was also around $34012$. We can also consider the following: students who take a first-year math unit will tend to take around *two more* first-year math units, by simply observing the science and engineering degrees' core math requirements <font color="#884dff">[3 & 4]</font>. Since our dataset contains $10845$ entries in first-year math units, there must be roughly $\frac{10845}{3}=3615$ unique students taking first-year math units. This makes up $\frac{3615}{34012}\times100=10.63\%$ of the total undergraduate enrolment. Hence, the University should be handing out around $10.63\%\times600=63.78$ merit prizes across the first-year math units.
+
+From this, we can further calculate how the merit prizes should be proportioned across the units by considering the enrolment numbers of each unit.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+df = t(data.frame(table(data$Unit.of.Study.Identifier)))
+df = df[, c(1,8,9,5,2,7,3,4,11,12,6,13,10,14,15)]
+
+kable(t(df[2,]), caption = "Enrolment Numbers per Unit", row.names = FALSE, col.names = c("UNIT A", 
+                               "UNIT Q", 
+                               "UNIT S",
+                               "UNIT K",
+                               "UNIT C",
+                               "UNIT O",
+                               "UNIT G",
+                               "UNIT H",
+                               "UNIT V",
+                               "UNIT W",
+                               "UNIT M",
+                               "UNIT X",
+                               "UNIT T",
+                               "UNIT Y",
+                               "UNIT Z"))
+```
+
+As a result, the merit prizes should be allocated as shown below.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+xform = list(categoryorder = "array",
+             categoryarray = c("UNIT A", 
+                               "UNIT Q", 
+                               "UNIT S",
+                               "UNIT K",
+                               "UNIT C",
+                               "UNIT O",
+                               "UNIT G",
+                               "UNIT H",
+                               "UNIT V",
+                               "UNIT W",
+                               "UNIT M",
+                               "UNIT X",
+                               "UNIT T",
+                               "UNIT Y",
+                               "UNIT Z"))
+
+prize = NULL
+for (i in unique(data$Unit.of.Study.Identifier)) {
+  
+  prize = c(prize, length(subset(data, data$Unit.of.Study.Identifier == i)$Mark) / 10845 * 63.78)
+}
+
+div(
+plot_ly(x = unique(data$Unit.of.Study.Identifier), y = prize, color = I("#1f77b4"), type = 'bar', name = 'Merit Prize Recipients') %>%
+  layout(width = 1100, title = 'Merit Prize Distribution', yaxis = list(title = 'Count'), xaxis = xform)
+, align = "center")
+
+```
+
+
+A key assumption being made here is that the distribution of student marks for each unit are roughly *identical* to each other. According to the University's *Coursework Policy* <font color="#884dff">[5]</font>, this assumption should be valid, as it states that
+
+> The Academic Board has adopted a set of grades that are **common to all undergraduate** and postgraduate courses that award merit grades for coursework... Students' assessment will be evaluated solely on the basis of students' achievement against **criteria** and **standards** specified to align with learning outcomes.
+
+We can take a look at how well the actual marks embody this assumption by cross-comparing box plots of the unit mark distributions.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+data$Unit.of.Study.Identifier2= factor(data$Unit.of.Study.Identifier,levels=levels(data$Unit.of.Study.Identifier)[c(1,8,9,5,2,7,3,4,11,12,6,13,10,14,15)])
+
+div(
+plot_ly(data,y=~Mark, x=~Unit.of.Study.Identifier2, color = I("#1f77b4"), type='box') %>% layout(width = 1100, title = "Mark Distribution per Unit of Study",  xaxis = list(title = "Unit of Study"), yaxis = list(title = "Mark"))
+, align = "center")
+
+```
+
+The mark distributions as described by the boxes seem to be somewhat equal, but comparing the boxes for Unit A (median of $64$, just under credit) and Unit Z (median of $76$, distinction) suggests otherwise. The University's *School of Maths & Stats* may need to further investigate their marking procedures.
+
+Although there aren't significant differences, the allocation of merit prizes can be recalibrated to favour the more difficult units, i.e. the ones with lower median marks.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+totalMedian = median(data$Mark)
+
+weightedPrize = NULL
+counter = 0
+for (i in unique(data$Unit.of.Study.Identifier)) {
+  
+  counter = counter + 1
+  weightedPrize = c(weightedPrize, totalMedian / median(subset(data, data$Unit.of.Study.Identifier == i)$Mark) * prize[counter])
+  
+}
+
+div(
+plot_ly(x = unique(data$Unit.of.Study.Identifier), y = prize, color = I("#1f77b4"), type = 'bar', name = 'Merit Prize') %>%
+  add_trace(y = weightedPrize, color = I("#17becf"), name = 'Weighted Merit Prize') %>%
+  layout(width = 1100, title = 'Weighted Merit Prize Distribution', yaxis = list(title = 'Count'), xaxis = xform, barmode = 'group')
+, align = "center")
+
+```
+
+## 3.2 Scholarships Based on Targeted Demographics
+
+It is becoming more and more common for institutions to give out scholarships to students in marginalised demographics to facilitate equality.
+
+### 3.2.1 Gender
+
+It is known that "women are underrepresented in STEM occupations" <font color="#884dff">[6]</font> (which are what students doing first-year math units typically go into). Although this may be the case, research <font color="#884dff">[7]</font> shows that
+
+> males and females perform **similarly in mathematics**... nearly equal male and female variances (in results).
+
+We can see whether this holds true with our dataset by comparing male and female mark distributions.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+div(
+plot_ly(width = 600, data, x=~Gender, y=~Mark, color = ~Gender, colors = c("#c2a2ef","#81dbba"), type='box') %>% layout(title = "Mark Distribution per Gender")
+, align = "center")
+```
+
+As expected, the distributions for each gender are almost identical. This means that the University does not need to invest in scholarships to incentivise better performance for either gender. *However*, if we take a look at the enrolment numbers of each gender...
+
+```{r, fig.align='center', echo = FALSE, message = FALSE, warning = FALSE}
+
+div(
+plot_ly(x=c("F", "M"), y=c(5018, 5827), color = c("F", "M"), colors = c("#c2a2ef","#81dbba"), type = 'bar') %>% layout(width = 600, title = "Enrolments per Gender",  xaxis = list(title = "Gender"), yaxis = list(title = "Count"))
+, align = "center")
+
+```
+
+...we can see that there is indeed a discrepancy, with $\left(\frac{5827}{5018}-1\right)\times100\approx16.1\%$ more males than females enrolled.
+
+Now, the Scholarships Office is already investing in STEM-related scholarships that are targeted towards female students to support the University's goal of "creating the perfect environment for STEM's future female leaders" <font color="#884dff">[8]</font>. This contributes to the reason why the gender discrepancy is $16.1\%$ and not higher, so continued funding should further help bring this number down.
+
+### 3.2.2 Domestic vs International Students
+
+> International education is Australia's **third largest** export industry, worth **$34 billion a year** to the Australian economy <font color="#884dff">[9]</font>.
+
+We can produce plots to help us analyse the mark distributions as well as the enrolment numbers for domestic and international students just as we did when comparing genders.
+
+<style>
+  .col2 {
+    columns: 2 200px;         /* number of columns and width in pixels*/
+    -webkit-columns: 2 200px; /* chrome, safari */
+    -moz-columns: 2 200px;    /* firefox */
+  }
+  .col3 {
+    columns: 3 100px;
+    -webkit-columns: 3 100px;
+    -moz-columns: 3 100px;
+  }
+</style>
+
+<div class = "col2">
+
+```{r, echo = F, message = F,warning = F}
+a = plot_ly(data, y=~Mark, x=data$Dom.Int, color = data$Dom.Int, colors = c("#e58477", "#f2df76"),  type='box') %>% layout(width = 600, title = "Mark Distributions of Domestic and International Students", xaxis = list(title = ""))
+b = plot_ly(x=unique(data$Dom.Int), y=c(4056, 6789), color = unique(data$Dom.Int), colors = c("#e58477", "#f2df76"), type = 'bar') %>% layout(width = 600, title = "Enrolments of Domestic and International Students",  xaxis = list(title = ""), yaxis = list(title = "Count"))
+#subplot(a, b, nrows = 1,  shareX = F, shareY = F,titleX = T,titleY = T)
+
+a
+b
+```
+
+</div>
+
+The mark distributions are similar, but not quite identical like they were with the genders. Also, international students make up $\frac{4056}{10845}\times100=37.4\%$ of the first-year math unit enrolments, which is actually much *higher* than the average proportion of international students across all Australian universities, which is $24.3\%$ <font color="#884dff">[10]</font>.
+
+The above two insights can be attributed to a recent *ABC News* article <font color="#884dff">[9]</font> which states that
+
+> Universities (are) **ignoring own English standards** to **admit more** high-paying international students... the tolerance level is too low
+
+The high proportion of international students may be due to universities trying to admit more of them, and the slight decrease in marks compared to domestic students may be due to some international students not being able to communicate and understand English very well.
+
+Hence, the Scholarships Office should not be allocating scholarships to incentivise more international students to pick first-year math units, as there are already plenty. They should instead target scholarships to those who excel in their English entrance exams, in order to promote better English skills among international students. This can be done in collaboration with other departments in the University such as the *Centre for English Teaching*, which should implement more English learning and support services.
+
+### 3.2.3 Other Demographic Factors
+
+Other demographics factors such as 'age' and 'mode of study' will not be examined because there aren't any solid reasons to award scholarships and prizes based off of these factors.
+
+# 4 References
+
+<pre> <font color="#884dff">[1]</font> University of Sydney Academic Merit Prize, The University of Sydney Scholarships and Financial Support Service, https://sydney.edu.au/scholarships/prizes/university_of_sydney_academic_merit_prize.shtml, accessed 20th May 2019.   
+<font color="#884dff">[2]</font> The University of Sydney 2017 Annual Report, The University of Sydney, PDF, p. 15, https://sydney.edu.au/content/dam/corporate/documents/about-us/values-and-visions/Annual-report-2.pdf, accessed 19th May 2019.    
+<font color="#884dff">[3]</font> Table A Degree Core Units of Study, Science Undergraduate Handbook 2019, The University of Sydney, https://sydney.edu.au/handbooks/science/subject_areas_ae/tableA_core.shtml, accessed 21st May 2019.   
+<font color="#884dff">[4]</font> Bachelor of Engineering Honours, Engineering and Information Technologies UG Handbook 2019, The University of Sydney, https://sydney.edu.au/handbooks/engineering/engineering/engineering_unit_of_study_tables.shtml, accessed 19th May 2019.    
+<font color="#884dff">[5]</font> Coursework Policy 2014, The University of Sydney, amended 16 April 2019, PDF, p. 75 , https://sydney.edu.au/policies/showdoc.aspx?recnum=PDOC2014/378&RendNum=0, accessed 20th May 2019.    
+<font color="#884dff">[6]</font> Bridging the gender gap: why do so few girls study Stem subjects?, The Guardian, https://www.theguardian.com/science/head-quarters/2018/mar/08/bridging-the-gender-gap-why-do-so-few-girls-study-stem-subjects, accessed 19th May 2019.    
+<font color="#884dff">[7]</font> Lindberg, S. M., Hyde, J. S., Petersen, J. L., & Linn, M. C. (2010). New trends in gender and mathematics performance: A meta-analysis. Psychological Bulletin, 136(6), 1123-1135.
+http://dx.doi.org/10.1037/a0021276      
+<font color="#884dff">[8]</font> Women in Engineering, School of Engineering and Information Technologies, The University of Sydney, https://sydney.edu.au/engineering/study-engineering-and-it/why-study-here/women-in-engineering.html, accessed 20th May 2019.     
+<font color="#884dff">[9]</font> Elise Worthington, Sharon O'Neill and Naomi Selvaratnam, Universities ignoring own English standards to admit more high-paying international students, ABC News, https://www.abc.net.au/news/2019-05-06/universities-lowering-english-standards/11063626, accessed 20th May 2019.     
+<font color="#884dff">[10]</font> International Student University Enrolment Numbers, University Rankings Australia, http://www.universityrankings.com.au/international-student-numbers.html, accessed 19th May 2019. 
+
+
+
