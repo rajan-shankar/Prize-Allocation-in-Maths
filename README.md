@@ -1,4 +1,4 @@
-# Scholarsips-and-Prizes-in-Maths
+# Scholarships-and-Prizes-in-Maths
 
 A report providing suggestions on how to allocate scholarships and prizes to students undertaking first-year math units. This was a group 
 project that I lead in my DATA1901 unit. The data used for the analysis was a collection of anonymised marks and demographical 
